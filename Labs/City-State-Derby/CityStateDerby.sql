@@ -3,9 +3,6 @@ CREATE TABLE state(
     dateJoinedUS int,
     governor VARCHAR(20));
     
-ALTER TABLE state
-    ADD CONSTRAINT state_pk
-    PRIMARY KEY(stateName);
     
 INSERT INTO state(stateName, dateJoinedUS, governor)
     VALUES ('California', 1800, 'Jerry Brown');
@@ -16,15 +13,6 @@ CREATE TABLE city(
     population int,
     mayor VARCHAR(20));
     
-    
-ALTER TABLE city
-    ADD CONSTRAINT city_pk
-    PRIMARY KEY (cityName, stateName);
-    
-ALTER TABLE city
-    ADD CONSTRAINT city_state_fk
-    FOREIGN KEY (stateName)
-    REFERENCES state (stateName);
     
 INSERT INTO city (cityName, stateName, population, mayor)
     VALUES ('Huntington Beach', 'California', 666666, 'Rouda');
