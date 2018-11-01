@@ -1,0 +1,136 @@
+Enter a menu option: 1
+
+Writing groups
+---------------------
+Benji Book Club
+Jing Si Abode
+Lego Group
+Upcoming Writers
+
+
+Enter a menu option: 2
+Enter the group name: Lego Group
+
+Group Name Lego Group
+Head Writer: Alf  
+Year Formed: 1998 
+Subject: Lego Bricks
+Book Title: History of Lego
+Year Published: 2003 
+Number of Pages: 300  
+Publisher Name: 49ers Publishing
+Publisher Address: 562 Bellflower St.
+Publisher Phone: 562-421-4219
+Publisher Email: 49publishing@gmail.com
+
+
+Enter a menu option: 3
+
+Publishers
+---------------------
+49ers Publishing
+Jing Si Publishing
+Marvel Comics
+
+
+
+
+Enter a menu option: 4
+Enter the publisher name: 49ers Publishing
+Publisher name: 49ers Publishing
+Publisher address: 562 Bellflower St.
+Publisher phone: 562-421-4219
+Publisher email: 49publishing@gmail.com
+Headwriter name: Alf  
+Group name: Lego Group
+Year formed: 1998 
+Subject: Lego Bricks
+Book title: History of Lego
+Year published: 2003 
+Number of pages: 300  
+
+Publisher name: 49ers Publishing
+Publisher address: 562 Bellflower St.
+Publisher phone: 562-421-4219
+Publisher email: 49publishing@gmail.com
+Headwriter name: Chelsea
+Group name: Upcoming Writers
+Year formed: 2018 
+Subject: Journalism
+Book title: Intro to Technical Writing
+Year published: 2011 
+Number of pages: 188  
+
+Publisher name: 49ers Publishing
+Publisher address: 562 Bellflower St.
+Publisher phone: 562-421-4219
+Publisher email: 49publishing@gmail.com
+Headwriter name: Chelsea
+Group name: Upcoming Writers
+Year formed: 2018 
+Subject: Journalism
+Book title: Prospector Pete is Great
+Year published: 2019 
+Number of pages: 30   
+
+Enter a menu option: 5
+
+Books
+---------------------
+Jing Si Aphorisms
+History of Lego
+Intro to Technical Writing
+Prospector Pete is Great
+Spiderman 2099
+
+
+
+Enter a menu option: 6
+Enter the name of the book: History of Lego
+Enter the group name: Lego Group
+Group name: Lego Group
+Book title: History of Lego
+Number of pages: 300  
+Year published: 2003 
+Publisher name: 49ers Publishing
+Headwriter name: Alf  
+Year formed: 1998 
+Subject: Lego Bricks
+Publisher address: 562 Bellflower St.
+Publisher phone: 562-421-4219
+Publisher email: 49publishing@gmail.com
+
+
+
+Enter a menu option: 7
+Enter group name: Lego Group
+Enter book title: Safari Park Set Tutorial
+Enter publisher name: Jing Si Publishing
+Enter year published: 2018
+Enter number of pages: 50
+Book added! ^_^
+Press Enter to continue...
+
+
+
+Enter a menu option: 8
+Enter old publisher: Jing Si Publishing
+Enter new publisher: 49ers Publishing
+Publishers updated!
+
+
+Enter a menu option: 9
+What book would you like to remove? History of Lego
+Please specify group name: Lego Group
+
+Book removed!!
+
+Books
+-----------------
+Jing Si Aphorisms
+Safari Park Set Tutorial
+Intro to Technical Writing
+Prospector Pete is Great
+Spiderman 2099
+
+
