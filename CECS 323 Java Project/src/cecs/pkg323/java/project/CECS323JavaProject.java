@@ -7,7 +7,6 @@ import java.util.Scanner;
 /**
  *
  * @author Brian Nguyen, Randy Thiem
- * @since 10/23/18
  *
  */
 public class CECS323JavaProject {
@@ -23,7 +22,10 @@ public class CECS323JavaProject {
     //each % denotes the start of a new field.
     //The - denotes left justification.
     //The number indicates how wide to make the field.
- 
+    //The "s" denotes that it's a string.  All of our output in this test are
+    //strings, but that won't always be the case.
+    static final String displayFormat = "%-20s%-20s%-20s%-20s\n";
+    static final String displayFormat2 = "%-30s%-30s%-30s%-30s%-30s\n";
 // JDBC driver name and database URL
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     static String DB_URL = "jdbc:derby://localhost:1527/";
@@ -71,7 +73,19 @@ public class CECS323JavaProject {
      * @throws SQLException
      */
     public static void displayWritingGroups() throws SQLException {
-       
+        Connection conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT GroupName FROM WritingGroup";
+        ResultSet rs = stmt.executeQuery(sql);
+
+        System.out.println("\nWriting groups\n---------------------");
+        while (rs.next()) {
+            String groupName = rs.getString("GroupName");
+            System.out.println(groupName);
+        }
+        rs.close();
+        System.out.println();
+        pressAnyKeyToContinue();
     }
 
     /**
@@ -80,7 +94,19 @@ public class CECS323JavaProject {
      * @throws SQLException
      */
     public static void displayPublishers() throws SQLException {
-        
+        Connection conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT PublisherName FROM Publishers";
+        ResultSet rs = stmt.executeQuery(sql);
+
+        System.out.println("\nPublishers\n---------------------");
+        while (rs.next()) {
+            String publisherName = rs.getString("PublisherName");
+            System.out.println(publisherName);
+        }
+        System.out.println();
+        rs.close();
+        pressAnyKeyToContinue();
 
     }
 
@@ -90,7 +116,52 @@ public class CECS323JavaProject {
      * @throws SQLException
      */
     public static void insertBook() throws SQLException {
-        
+        try {
+            Scanner in = new Scanner(System.in);
+            Connection conn = DriverManager.getConnection(DB_URL);
+
+            String s = "INSERT INTO Books(GroupName, BookTitle, PublisherName, YearPublished, NumberOfPages) VALUES(?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(s);
+
+            // Group name
+            System.out.print("Enter group name: ");
+            String a = in.nextLine();
+
+            // Book title
+            System.out.print("Enter book title: ");
+            String b = in.nextLine();
+
+            // Publisher name
+            System.out.print("Enter publisher name: ");
+            String c = in.nextLine();
+
+            // Year published
+            System.out.print("Enter year published: ");
+            int d = in.nextInt();
+
+            // Number of pages
+            System.out.print("Enter number of pages: ");
+            int e = in.nextInt();
+
+            ps.setString(1, a);                  // Group Name
+            ps.setString(2, b);                  // Book title
+            ps.setString(3, c);                // Publisher Name
+            ps.setInt(4, d);                      // Year Published
+            ps.setInt(5, e);                     // Number of pages
+
+            ps.executeUpdate();
+            System.out.println("Book added! ^_^");
+            ps.close();
+            pressAnyKeyToContinue();
+
+            // if the user enters invalid data in any of the prompts
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.print("\n**YOU HAVE ENTERED ONE OR MORE INVALID DATA**\n");
+        } catch (SQLDataException s) {
+            System.out.print("\n**YOU HAVE ENTERED DATA THAT IS TOO LARGE FOR THE DATABASE**");
+        } catch (InputMismatchException se) {
+            System.out.println("**YOU HAVE ENTERED MISMATCHED INFORMATION**");
+        }
     }
 
     /**
@@ -100,7 +171,78 @@ public class CECS323JavaProject {
      * @throws SQLException
      */
     public static void deleteBook() {
-      
+        try {
+            Connection conn = null;
+            conn = DriverManager.getConnection(DB_URL);
+
+            Scanner in = new Scanner(System.in);
+            System.out.print("What book would you like to remove? ");
+            String bookremove = in.nextLine();
+
+            String s = "DELETE FROM Books WHERE BookTitle = ? AND GroupName = ?";
+            String check = "SELECT * FROM Books WHERE BookTitle = ?";
+            PreparedStatement p = conn.prepareStatement(s);
+            PreparedStatement p2 = conn.prepareStatement(check);
+
+            p2.setString(1, bookremove);
+            ResultSet rs = p2.executeQuery();
+            int count = 0;
+            while (rs.next()) {
+                count++;
+            }
+
+            // if there are no books from the result set / if book doesn't exist
+            if (count == 0) {
+                System.out.println("**BOOK ENTERED DOES NOT EXIST**\n");
+                p.close();
+                p2.close();
+                pressAnyKeyToContinue();
+            } else {
+
+                check = "SELECT * FROM Books WHERE GroupName = ?";
+                System.out.print("Please specify group name: ");
+                String b = in.nextLine();
+                p2 = conn.prepareStatement(check);
+                p2.setString(1, b);
+                rs = p2.executeQuery();
+                count = 0;
+                while (rs.next()) {
+                    count++;
+
+                }
+                if (count == 0) {
+                    System.out.println("**GROUPNAME ENTERED DOES NOT EXIST**\n");
+                    p.close();
+                    p2.close();
+                    pressAnyKeyToContinue();
+                } else {
+                    p.setString(1, bookremove);
+                    p.setString(2, b);
+                    p.executeUpdate();
+
+                    System.out.println("\nBook removed!!\n");
+                    s = "SELECT BookTitle FROM Books";
+                    Statement stmt = conn.createStatement();
+                    rs = stmt.executeQuery(s);
+
+                    System.out.println("Books\n-----------------");
+                    while (rs.next()) {
+                        String bTitle = rs.getString("BookTitle");
+                        System.out.println(bTitle);
+                    }
+                    System.out.println();
+                    rs.close();
+                    p.close();
+                    p2.close();
+                    pressAnyKeyToContinue();
+                }
+
+            }
+
+        } catch (SQLException se) {
+            System.out.println("\n**YOU HAVE ENTERED INVALID DATA**");
+            pressAnyKeyToContinue();
+        }
 
     }
 
@@ -110,26 +252,139 @@ public class CECS323JavaProject {
      * @throws SQLException
      */
     public static void displayGroupData() throws SQLException {
-       
+        Scanner in = new Scanner(System.in);
+        Connection conn = DriverManager.getConnection(DB_URL);
+        String s = "SELECT * from WritingGroup NATURAL JOIN Publishers NATURAL JOIN Books where GroupName = ?";
+
+        System.out.print("Enter the group name: ");
+        String writingGroup = in.nextLine();
+
+        PreparedStatement ps = conn.prepareStatement(s);
+        ps.setString(1, writingGroup);
+        ResultSet rs = ps.executeQuery();
+
+        System.out.println();
+        while (rs.next()) {
+            String groupName = rs.getString("GroupName");
+            String headWriter = rs.getString("HeadWriter");
+            String yearFormed = rs.getString("YearFormed");
+            String subject = rs.getString("Subject");
+            String bookTitle = rs.getString("BookTitle");
+            String yearPublished = rs.getString("YearPublished");
+            String numberPages = rs.getString("NumberOfPages");
+            String publisherName = rs.getString("PublisherName");
+            String publisherAddress = rs.getString("PublisherAddress");
+            String publisherPhone = rs.getString("PublisherPhone");
+            String publisherEmail = rs.getString("PublisherEmail");
+
+            System.out.printf("Group Name %-5s\n", dispNull(groupName));
+            System.out.printf("Head Writer: %-5s\n", dispNull(headWriter));
+            System.out.printf("Year Formed: %-5s\n", yearFormed);
+            System.out.printf("Subject: %-5s\n", dispNull(subject));
+            System.out.printf("Book Title: %-5s\n", dispNull(bookTitle));
+            System.out.printf("Year Published: %-5s\n", yearPublished);
+            System.out.printf("Number of Pages: %-5s\n", numberPages);
+            System.out.printf("Publisher Name: %-5s\n", dispNull(publisherName));
+            System.out.printf("Publisher Address: %-5s\n", dispNull(publisherAddress));
+            System.out.printf("Publisher Phone: %-5s\n", dispNull(publisherPhone));
+            System.out.printf("Publisher Email: %-5s\n", dispNull(publisherEmail));
+            System.out.println();
+        }
+        System.out.println();
+        rs.close();
+        ps.close();
+        pressAnyKeyToContinue();
 
     }
 
-    /**
-     * displays data related to specified publisher
-     * 
-     * @throws SQLException 
-     */
     public static void displayPublisherData() throws SQLException {
+        Scanner in = new Scanner(System.in);
+        Connection conn = DriverManager.getConnection(DB_URL);
+        String s = "SELECT * from Publishers NATURAL JOIN WritingGroup NATURAL JOIN Books where PublisherName = ?";
+        System.out.print("Enter the group name: ");
+        String pubname = in.nextLine();
+
+        PreparedStatement ps = conn.prepareStatement(s);
+        ps.setString(1, pubname);
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()){
+            String pName = rs.getString("PublisherName");
+            String groupName = rs.getString("GroupName");
+            String pAddress = rs.getString("PublisherAddress");
+            String pPhone = rs.getString("PublisherPhone");
+            String pEmail = rs.getString("PublisherEmail");
+            String headWriter = rs.getString("HeadWriter");
+            String yearFormed = rs.getString("YearFormed");
+            String subject = rs.getString("Subject");
+            String bookTitle = rs.getString("BookTitle");
+            String yearPublished = rs.getString("YearPublished");
+            String numOfPages = rs.getString("NumberOfPages");
+            
+            System.out.printf("Publisher name: %-5s\n", dispNull(pName));
+            System.out.printf("Publisher address: %-5s\n", dispNull(pAddress));
+            System.out.printf("Publisher phone: %-5s\n", dispNull(pPhone));
+            System.out.printf("Publisher email: %-5s\n", dispNull(pEmail));
+            System.out.printf("Headwriter name: %-5s\n", dispNull(headWriter));
+            System.out.printf("Group name: %-5s\n", dispNull(groupName));
+            System.out.printf("Year formed: %-5s\n", dispNull(yearFormed));
+            System.out.printf("Subject: %-5s\n", dispNull(subject));
+            System.out.printf("Book title: %-5s\n", dispNull(bookTitle));
+            System.out.printf("Year published: %-5s\n", dispNull(yearPublished));
+            System.out.printf("Number of pages: %-5s\n", dispNull(numOfPages));
+            System.out.println();
+        }
+        System.out.println();
+        rs.close();
+        ps.close();
+        pressAnyKeyToContinue();
     }
 
-    /**
-     * displays data related to specified book
-     * 
-     * @throws SQLException 
-     */
     public static void displayBookData() throws SQLException {
 
+        Scanner in = new Scanner(System.in);
+        Connection conn = DriverManager.getConnection(DB_URL);
+        String s = "SELECT * FROM Books Natural Join WritingGroup NATURAL JOIN Publishers where BookTitle = ? AND GroupName = ?";
+        System.out.print("Enter the name of the book: ");
+        String book = in.nextLine();
+        System.out.print("Enter the group name: ");
+        String gname = in.nextLine();
         
+        PreparedStatement ps = conn.prepareStatement(s);
+        ps.setString(1, book);
+        ps.setString(2, gname);
+        ResultSet rs = ps.executeQuery();
+        
+        while(rs.next()){
+            String pName = rs.getString("PublisherName");
+            String groupName = rs.getString("GroupName");
+            String bookTitle = rs.getString("BookTitle");
+            String yearPublished = rs.getString("YearPublished");
+            String numOfPages = rs.getString("NumberOfPages");
+            String headWriter = rs.getString("HeadWriter");
+            String yearFormed = rs.getString("YearFormed");
+            String subject = rs.getString("Subject");
+            String pAddress = rs.getString("PublisherAddress");
+            String pPhone = rs.getString("PublisherPhone");
+            String pEmail = rs.getString("PublisherEmail");
+            
+            
+            System.out.printf("Group name: %-5s\n", dispNull(groupName));
+            System.out.printf("Book title: %-5s\n", dispNull(bookTitle));
+            System.out.printf("Number of pages: %-5s\n", dispNull(numOfPages));
+            System.out.printf("Year published: %-5s\n", dispNull(yearPublished));
+            System.out.printf("Publisher name: %-5s\n", dispNull(pName));
+            System.out.printf("Headwriter name: %-5s\n", dispNull(headWriter));
+            System.out.printf("Year formed: %-5s\n", dispNull(yearFormed));
+            System.out.printf("Subject: %-5s\n", dispNull(subject));
+            System.out.printf("Publisher address: %-5s\n", dispNull(pAddress));
+            System.out.printf("Publisher phone: %-5s\n", dispNull(pPhone));
+            System.out.printf("Publisher email: %-5s\n", dispNull(pEmail));
+            
+        }
+        System.out.println();
+        ps.close();
+        rs.close();
+        pressAnyKeyToContinue();
 
     }
 
@@ -141,21 +396,96 @@ public class CECS323JavaProject {
      */
     public static void updatePublisher() throws SQLException {
 
+        try {
+            Scanner in = new Scanner(System.in);
+            Connection conn = DriverManager.getConnection(DB_URL);
+
+            String s1 = "SELECT * FROM Publishers WHERE PublisherName = ?";
+            System.out.print("Enter old publisher: ");
+            String oldpub = in.nextLine();
+
+            System.out.print("Enter new publisher: ");
+            String newpub = in.nextLine();
+
+            PreparedStatement p1 = conn.prepareStatement(s1);
+
+            p1.setString(1, oldpub);
+            // p1.setString(2, oldpub);
+
+            ResultSet rs = p1.executeQuery();
+            int count = 0;
+            while (rs.next()) {
+                count++;
+            }
+            if (count == 0) {
+                System.out.println("\n**OLD PUBLISHER SPECIFIED DOES NOT EXIST**\n");
+                rs.close();
+                p1.close();
+                pressAnyKeyToContinue();
+            } else {
+                p1.setString(1, newpub);
+                rs = p1.executeQuery();
+                count = 0;
+                while (rs.next()) {
+                    count++;
+                }
+                if (count == 0) {
+                    System.out.println("\n**NEW PUBLISHER SPECIFIED DOES NOT EXIST**\n");
+                    p1.close();
+                    rs.close();
+                    pressAnyKeyToContinue();
+                } else {
+
+                    String s = "UPDATE Books SET PublisherName = ? WHERE PublisherName = ?";
+                    PreparedStatement p = conn.prepareStatement(s);
+
+                    p.setString(1, newpub);
+                    p.setString(2, oldpub);
+                    p.executeUpdate();
+
+                    System.out.println("Publishers updated!\n");
+                    p.close();
+                    rs.close();
+                    pressAnyKeyToContinue();
+                }
+            }
+
+        } catch (SQLException se) {
+            System.out.println("ERROR");
+        }
     }
 
     /**
      * displays book titles
      */
     public static void displayBookTitles() {
-       
-       
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL);
+            Statement stmt = conn.createStatement();
+            String sql = "SELECT BookTitle FROM Books";
+            ResultSet rs = stmt.executeQuery(sql);
+            System.out.println("\nBooks\n---------------------");
+            while (rs.next()) {
+                String btitle = rs.getString("BookTitle");
+                System.out.println(btitle);
+            }
+            System.out.println();
+            rs.close();
+            pressAnyKeyToContinue();
+        } catch (SQLException se) {
+
+        }
     }
 
     /**
      * method used to allow the user to press any key to continue
      */
     public static void pressAnyKeyToContinue() {
-      
+        System.out.println("Press Enter to continue...");
+        try {
+            System.in.read();
+        } catch (Exception e) {
+        }
     }
 
     public static void main(String[] args) {
@@ -192,48 +522,48 @@ public class CECS323JavaProject {
 
                 Scanner sc = new Scanner(System.in);
                 menu();
-                String choice = sc.nextLine();
+                int choice = sc.nextInt();
                 loop:
                 while (true) {
                     switch (choice) {
 
-                        case "1":
+                        case 1:
                             displayWritingGroups();
                             break;
-                        case "2":
+                        case 2:
                             displayGroupData();
                             break;
 
-                        case "3":
+                        case 3:
                             displayPublishers();
                             break;
 
-                        case "4":
+                        case 4:
                             displayPublisherData();
                             break;
 
-                        case "5":
+                        case 5:
                             displayBookTitles();
 
                             break;
 
-                        case "6":
+                        case 6:
                             displayBookData();
                             break;
 
-                        case "7":
+                        case 7:
                             insertBook();
                             break;
 
-                        case "8":
+                        case 8:
                             updatePublisher();
                             break;
 
-                        case "9":
+                        case 9:
                             deleteBook();
                             break;
 
-                        case "10":
+                        case 10:
                             break loop;
 
                         default:
@@ -242,7 +572,7 @@ public class CECS323JavaProject {
                             break;
                     }
                     menu();
-                    choice = sc.nextLine();
+                    choice = sc.nextInt();
                 }
                 //Clean-up environment
                 stmt.close();
